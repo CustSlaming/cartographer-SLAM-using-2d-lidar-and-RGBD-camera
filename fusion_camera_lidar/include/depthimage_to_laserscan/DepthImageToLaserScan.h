@@ -356,6 +356,10 @@ namespace depthimage_to_laserscan
        * 
        * 因为标定出来的旋转矩阵不尽人意，所以通过在rviz中对topic观察，发现深度图转换的激光图与二维激光雷达采集的激光图只需旋转180°即可重合。
        * 因此，采用直接对虚拟激光数据进行旋转，使两个激光数据在角度上对应
+       * 
+       * 后续补充：和师兄们讨论了一下，发现标定问题应该是出现在使用的相机上，刚开始因为d435i被其他实验室的师兄借走了在做项目，所以我用的zed2相机，
+       *           而zed2是双目视觉形成的深度图这一点也是在师兄的提醒下才发现的。使用zed2标定出现问题后在代码中直接进行旋转，而后续换成d435i后因为
+       *           时间问题就忘记了标定，而直接只用了该代码。因为两种相机形成深度图的原理不同，所以出现这种尴尬的境况。后续的
        * */
       double l_angle = laser_msg->angle_min+laser_msg->angle_increment*i;
       double pi = 3.1415926535;
@@ -365,6 +369,7 @@ namespace depthimage_to_laserscan
         //如果深度图抖动的比较厉害，可以选择添加条件fabs(scan_msg->ranges[k] - laser_msg->ranges[i]) > 0.1 ,
         // 即虚拟数据与激光数据的差值大于10厘米才更新，好处是可以消除一些散乱点，坏处是对墙边的障碍物信息有较大影响
         // 好在TOF得到的深度图虽然抖动，但是抖动幅度很小，基本上可以忽略
+	// 如果想提高精度最好还是滤波，但是。。。我太菜了，没学
           if(scan_msg->ranges[k] < laser_msg->ranges[i])  
             laser_msg->ranges[i] = scan_msg->ranges[k];
 
